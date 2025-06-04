@@ -12,4 +12,9 @@ class BlacklistedWorker extends Model
     protected $fillable = [
         'name', 'email', 'phone', 'reason', 'proof', 'reported_by', 'approved'
     ];
+   public function reporter()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'reported_by');
+    }
+
 }

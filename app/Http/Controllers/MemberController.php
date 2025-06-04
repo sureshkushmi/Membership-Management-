@@ -25,6 +25,9 @@ class MemberController extends Controller
         return view('members.members', compact('members'));
     }
 
+   
+
+
     /**
      * Show the form for creating a new resource.
      */

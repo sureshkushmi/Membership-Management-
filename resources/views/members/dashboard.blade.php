@@ -14,17 +14,22 @@
                     <p><strong class="font-medium">Welcome,</strong> {{ $user->name }}</p>
                     <p><strong class="font-medium">Email:</strong> {{ $user->email }}</p>
 
-                    @if($membershipExpiry)
-                        <p><strong class="font-medium">Membership Expiry:</strong> {{ $membershipExpiry->format('d-m-Y') }}</p>
+                    @php
+    $expiry = $user->expiry_date ? \Carbon\Carbon::parse($user->expiry_date) : null;
+@endphp
 
-                        @if($membershipExpiry->isBefore(now()->addMonth()))
-                            <div class="mt-4 p-4 bg-yellow-100 text-yellow-700 border border-yellow-300 rounded-lg">
-                                <strong>Your membership is expiring soon!</strong> Please renew before <strong>{{ $membershipExpiry->format('d-m-Y') }}</strong>.
-                            </div>
-                        @endif
-                    @else
-                        <p><strong class="font-medium">Membership Expiry:</strong> Not Available</p>
-                    @endif
+@if($expiry)
+    <p><strong class="font-medium">Membership Expiry:</strong> {{ $expiry->format('d-m-Y') }}</p>
+
+    @if($expiry->isBefore(now()->addMonth()))
+        <div class="mt-4 p-4 bg-yellow-100 text-yellow-700 border border-yellow-300 rounded-lg">
+            <strong>Your membership is expiring soon!</strong> Please renew before <strong>{{ $expiry->format('d-m-Y') }}</strong>.
+        </div>
+    @endif
+@else
+    <p><strong class="font-medium">Membership Expiry:</strong> Not Available</p>
+@endif
+
                 </div>
             </div>
         </div>

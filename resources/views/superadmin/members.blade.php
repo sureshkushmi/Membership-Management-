@@ -29,6 +29,7 @@
                                 <th class="border px-4 py-2 text-left">Phone</th>
                                 <th class="border px-4 py-2 text-left">Address</th>
                                 <th class="border px-4 py-2 text-left">Document</th>
+                                <th class="border px-4 py-2 text-left">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,7 +55,8 @@
                                     </td>
                                     <td class="border px-4 py-2">
                                         @if($member->expiry_date)
-                                            {{ $member->expiry_date->format('d-m-Y') }}
+                                           {{ \Carbon\Carbon::parse($member->expiry_date)->format('d-m-Y') }}
+
                                         @else
                                             Not Available
                                         @endif
@@ -69,12 +71,58 @@
                                             No Document
                                         @endif
                                     </td>
+                                 @auth
+    @if(auth()->user()->role === 'superadmin' && $member->role === 'member')
+        <td class="border px-4 py-2">
+            <button onclick="openCancelModal({{ $member->id }})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                Cancel Member
+            </button>
+        </td>
+    @endif
+@endauth
+
+
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+                <!-- Cancel Modal -->
+               <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white p-6 pt-10 rounded-lg shadow-lg max-w-md w-full relative">
+        <button onclick="closeCancelModal()" class="absolute top-2 right-2 text-gray-600 hover:text-black text-xl leading-none">&times;</button>
+        <h2 class="text-lg font-semibold mb-4 text-center">Cancel Membership</h2>
+        <form id="cancelForm" method="POST">
+            @csrf
+            <input type="hidden" name="member_id" id="cancelMemberId">
+            <label for="reason" class="block mb-2 font-medium">Reason:</label>
+            <textarea name="reason" id="cancelReason" class="w-full border rounded p-2" required></textarea>
+            <div class="mt-4 text-right">
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    Confirm Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
             </div>
         </div>
     </div>
 </x-app-layout>
+<script>
+    function openCancelModal(memberId) {
+        document.getElementById('cancelMemberId').value = memberId;
+        document.getElementById('cancelForm').action = `/members/cancel/${memberId}`;
+        document.getElementById('cancelModal').classList.remove('hidden');
+        document.getElementById('cancelModal').classList.add('flex');
+    }
+
+    function closeCancelModal() {
+        document.getElementById('cancelModal').classList.remove('flex');
+        document.getElementById('cancelModal').classList.add('hidden');
+        document.getElementById('cancelReason').value = '';
+    }
+</script>
+

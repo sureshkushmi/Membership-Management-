@@ -33,11 +33,14 @@ Route::middleware(['auth','role:superadmin'])->group(function(){
     Route::get('/superadmin/dashboard',function(){
         return view('superadmin.dashboard');
     });
-    //Route::get('/superadmin/members', [SuperAdminController::class, 'index'])->name('superadmin.members');
+    Route::get('superadmin/members',[SuperadminController::class,'index'])->name('superadmin.members');
     Route::get('/superadmin/pending-members', [SuperadminController::class, 'pendingMembers'])->name('superadmin.pending-members');
     Route::post('/superadmin/approve-member/{id}', [SuperadminController::class, 'approveMember'])->name('superadmin.approve-member');
     Route::post('/superadmin/reject-member/{id}', [SuperadminController::class, 'rejectMember'])->name('superadmin.reject-member');
     Route::get('/blacklisted-workers/approve/{id}', [BlacklistedWorkerController::class, 'approve'])->name('blacklisted.approve');
+    Route::get('/blacklisted-workers/reject/{id}', [BlacklistedWorkerController::class, 'reject'])->name('blacklisted.reject');
+    Route::post('/members/cancel/{id}', [MemberController::class, 'cancel'])->name('members.cancel');
+
 });
 
 require __DIR__.'/auth.php';

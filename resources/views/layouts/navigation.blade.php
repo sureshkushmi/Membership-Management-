@@ -33,6 +33,9 @@
                             <x-nav-link :href="route('superadmin.pending-members')" :active="request()->routeIs('superadmin.pending-members')">
                                 {{ __('Pending Members') }}
                             </x-nav-link>
+                            <x-nav-link :href="route('superadmin.members')" :active="request()->routeIs('superadmin.members')">
+                                {{ __('Active Members') }}
+                            </x-nav-link>
                         @endif
                 </div>
             </div>

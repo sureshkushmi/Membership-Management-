@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // Create 10 random users using the UserFactory
-        //User::factory(10)->create(); // Creates 10 random users
+        User::factory(10)->create(); // Creates 10 random users
         BlacklistedWorker::factory(10)->create();
     }
 }

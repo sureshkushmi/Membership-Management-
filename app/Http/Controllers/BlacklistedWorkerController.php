@@ -11,7 +11,7 @@ class BlacklistedWorkerController extends Controller
     // Show all blacklisted workers (approved ones)
     public function index()
     {
-        $workers = BlacklistedWorker::where('approved', true)->paginate(10);
+        $workers = BlacklistedWorker::with('reporter')->paginate(10);
 
         return view('blacklisted.index', compact('workers'));
     }
