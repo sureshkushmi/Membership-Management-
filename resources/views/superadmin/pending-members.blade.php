@@ -1,8 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Pending Members') }}
-        </h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Pending Members</h2>
     </x-slot>
 
     <div class="py-12">
@@ -29,95 +27,79 @@
                                     <td class="border px-4 py-2">{{ $member->name }}</td>
                                     <td class="border px-4 py-2">{{ $member->email }}</td>
                                     <td class="border px-4 py-2">
-                                        <!-- View Button -->
+                                        <!-- View Modal Trigger -->
                                         <button type="button"
-                                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none"
+                                            class="px-2 py-1 bg-blue-600 text-white rounded"
                                             data-bs-toggle="modal"
                                             data-bs-target="#memberModal{{ $member->id }}">
                                             View
                                         </button>
 
-                                        <!-- Approve Form -->
-                                        <form method="POST" action="{{ route('superadmin.approve-member', $member->id) }}" style="display:inline;">
+                                        <!-- Edit -->
+                                        <a href="{{ route('superadmin.edit-member', $member->id) }}"
+                                            class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                                            Edit
+                                        </a>
+
+                                        <!-- Approve Form with Member Type -->
+                                        <form method="POST" action="{{ route('superadmin.approve-member', $member->id) }}" class="inline">
                                             @csrf
-                                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none">
+                                            <select name="member_type" class="border rounded px-2 py-1 text-sm">
+                                                <option value="general">General</option>
+                                                <option value="lifetime">Lifetime</option>
+                                                <option value="manartha">Manartha</option>
+                                            </select>
+                                            <button type="submit" class="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700">
                                                 Approve
                                             </button>
                                         </form>
 
-                                        <!-- Reject Form -->
-                                        <form method="POST" action="{{ route('superadmin.reject-member', $member->id) }}" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none" onclick="return confirm('Are you sure?')">
-                                                Reject
-                                            </button>
-                                        </form>
+                                        <!-- Reject Modal Trigger -->
+                                        <button type="button"
+                                            class="px-2 py-1 bg-red-600 text-white rounded"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#rejectModal{{ $member->id }}">
+                                            Reject
+                                        </button>
                                     </td>
                                 </tr>
 
-                                <!-- Modal -->
-                                <div class="modal fade" id="memberModal{{ $member->id }}" tabindex="-1" aria-labelledby="memberModalLabel{{ $member->id }}" aria-hidden="true">
-                                  <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                      <div class="modal-header">
-                                        <h5 class="modal-title" id="memberModalLabel{{ $member->id }}">Member Details - {{ $member->name }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                      </div>
-                                      <div class="modal-body">
-    <ul class="list-group mb-4">
-        <li class="list-group-item"><strong>Name:</strong> {{ $member->name }}</li>
-        <li class="list-group-item"><strong>Email:</strong> {{ $member->email }}</li>
-        <li class="list-group-item"><strong>Phone:</strong> {{ $member->phone ?? 'N/A' }}</li>
-        <li class="list-group-item"><strong>Address:</strong> {{ $member->address ?? 'N/A' }}</li>
-        <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($member->status) }}</li>
-        <li class="list-group-item"><strong>Role:</strong> {{ ucfirst($member->role) }}</li>
-        <li class="list-group-item"><strong>Registered At:</strong> {{ $member->created_at->format('F j, Y h:i A') }}</li>
-    </ul>
+                                <!-- Member Details Modal -->
+                                @include('superadmin.partials.member-modal', ['member' => $member])
 
-                                                {{-- Uploaded Documents Section --}}
-                                                
-                                            @php
-                                                $docs = [];
-
-                                                if (!empty($member->document)) {
-                                                    $json = json_decode($member->document, true);
-                                                    $docs = is_array($json) ? $json : explode(',', $member->document);
-                                                    $docs = array_filter(array_map('trim', $docs)); // remove empty strings
-                                                }
-                                            @endphp
-
-                                            @if(count($docs))
-                                                <ul class="list-unstyled">
-                                                    @foreach($docs as $doc)
-                                                        @php $ext = pathinfo($doc, PATHINFO_EXTENSION); @endphp
-
-                                                        <li class="mb-2">
-                                                            @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif']))
-                                                                <img src="{{ asset('storage/documents/' . $doc) }}" alt="Document" class="img-thumbnail w-50 mb-1">
-                                                            @else
-                                                                <a href="{{ asset('storage/documents/' . $doc) }}" target="_blank" class="text-primary">
-                                                                    {{ $doc }}
-                                                                </a>
-                                                            @endif
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            @else
-                                                <p class="text-muted">No documents uploaded.</p>
-                                            @endif
-
-
-                                      <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                      </div>
-                                    </div>
+                                <!-- Reject Modal -->
+                                <div class="modal fade" id="rejectModal{{ $member->id }}" tabindex="-1" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <form method="POST" action="{{ route('superadmin.reject-member', $member->id) }}">
+                                        @csrf
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Reason for Rejection</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <textarea name="reason" class="form-control" required rows="4" placeholder="Write reason here..."></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-danger">Submit</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </form>
                                   </div>
                                 </div>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+
             </div>
         </div>
     </div>
 </x-app-layout>
+<!-- In your <head> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Before </body> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+

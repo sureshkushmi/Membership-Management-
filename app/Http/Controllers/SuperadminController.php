@@ -45,12 +45,22 @@ class SuperadminController extends Controller
 
   public function rejectMember($id)
 {
-    $user = User::findOrFail($id);
-    $user->status = 'rejected';
-    $user->save();
+$request->validate([
+    'reason' => 'required|string',
+]);
 
-    // Send rejection email
-    Mail::to($user->email)->send(new UserRejectedMail($user));
+$user = User::findOrFail($id);
+$user->status = 'rejected';
+$user->save();
+
+Reason::create([
+    'user_id' => $user->id,
+    'type' => 'rejected',
+    'reason' => $request->reason,
+]);
+
+// Send rejection email with reason
+Mail::to($user->email)->send(new UserRejectedMail($user, $request->reason));
 
     return redirect()->back()->with('success', 'Member rejected and email sent.');
 }
@@ -75,5 +85,26 @@ class SuperadminController extends Controller
     return redirect()->back()->with('success', 'Member cancelled successfully.');
 }
 
+  public function edit($id)
+    {
+        $member = User::findOrFail($id);
+        return view('superadmin.edit-members', compact('member'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string',
+            'address' => 'nullable|string',
+            'member_type' => 'nullable|string',
+            'expiry_date' => 'nullable|date',
+        ]);
+
+        $member = User::findOrFail($id);
+        $member->update($request->only(['name', 'phone', 'address', 'member_type', 'expiry_date']));
+
+        return redirect()->route('superadmin.pending-members')->with('success', 'Member info updated.');
+    }
     
 }

@@ -10,16 +10,23 @@ class UserRejectedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+ 
     public $user;
+    public $reason;
 
-    public function __construct(User $user)
+    public function __construct($user, $reason)
     {
         $this->user = $user;
+        $this->reason = $reason;
     }
 
     public function build()
     {
-        return $this->subject('Your Membership Has Been Rejected')
-                    ->view('emails.rejected');
+        return $this->subject('Membership Rejected')
+                    ->view('emails.user_rejected') // Blade view for the email
+                    ->with([
+                        'user' => $this->user,
+                        'reason' => $this->reason,
+                    ]);
     }
 }

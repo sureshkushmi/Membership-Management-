@@ -40,6 +40,8 @@ Route::middleware(['auth','role:superadmin'])->group(function(){
     Route::get('/blacklisted-workers/approve/{id}', [BlacklistedWorkerController::class, 'approve'])->name('blacklisted.approve');
     Route::get('/blacklisted-workers/reject/{id}', [BlacklistedWorkerController::class, 'reject'])->name('blacklisted.reject');
     Route::post('/members/cancel/{id}', [MemberController::class, 'cancel'])->name('members.cancel');
+    Route::get('/superadmin/edit-member/{id}', [SuperadminController::class, 'edit'])->name('superadmin.edit-member');
+    Route::post('/superadmin//update-member/{id}', [SuperadminController::class, 'update'])->name('superadmin.update-member');
 
 });
 
